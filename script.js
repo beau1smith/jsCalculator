@@ -1,106 +1,119 @@
-function add(a, b){
-  return a + b;
-}
+"use strict;"
 
-function subtract(a, b){
-  return a - b;
-}
-
-function multiply(a, b){
-  return a * b;
-}
-
-function divide(a, b){
-  return a / b;
-}
-
-let inputString1 = '';
-let inputString2 = '';
-let operatorChoice = '';
-
-const calculatorNumbers = Array.from(document.getElementsByClassName('number'));
+const inputCalculatorNumbers = Array.from(document.getElementsByClassName('number'));
 const calculatorOperators = Array.from(document.getElementsByClassName('operator'));
 const calculatorEqual = Array.from(document.getElementsByClassName('equal'));
 const calculatorClear = Array.from(document.getElementsByClassName('clear'));
 const display = document.querySelector('.display');
 
-calculatorNumbers.map( button => {
+
+let currentCalcValue = '';
+let currentOperator = '';
+let displayValue = '';
+let calcInput1 = '';
+let calcInput2 = '';
+
+function clearCalculator() {
+  currentCalcValue = '';
+  currentOperator = '';
+  displayValue = '';
+  calcInput1 = '';
+  calcInput2 = '';
+  display.innerText = '';
+  }
+
+function updateDisplay() {
+  if(displayValue.length < 1) {
+    display.innerText = '0';
+  } else if(displayValue.length > 9) {
+    display.innerText = displayValue.substring(0, 9);
+  } else {
+    display.innerText = displayValue;
+  }
+}
+
+function collectInputs(eventData){
+  let inputValue = eventData;
+  if (calcInput1.length < 9 && currentOperator === '') {
+    calcInput1 += inputValue;
+    display.innerText = calcInput1;
+  } else {
+    if (calcInput2.length < 9 && currentOperator != ''){
+      calcInput2 += inputValue;
+      display.innerText = calcInput2;
+    }
+  }
+}
+
+function collectOperator(eventData){
+  let inputValue = eventData;
+  if(inputValue == '%'){
+    calcInput1 *= 0.01;
+    display.innerText = calcInput1;
+  } else if (inputValue == '+ / -'){
+    calcInput1 = -calcInput1;
+    display.innerText = calcInput1;
+    console.log(calcInput1);
+  } else if (inputValue == '.'){
+    if (!calcInput1.includes('.')){
+      calcInput1 += '.';
+    } else {
+      calcInput1;
+    }
+  } else {
+    display.innerText = '';
+    currentOperator =  inputValue;
+  }
+}
+
+function calculateResults(){
+  if (calcInput1 && calcInput2 && currentOperator){
+    if(currentOperator === "+"){
+      result = Number(calcInput1) + Number(calcInput2);
+    } else if (currentOperator === "-"){
+      result = Number(calcInput1) - Number(calcInput2);
+    } else if (currentOperator === "*") {
+      result = Number(calcInput1) * Number(calcInput2);
+    } else if (currentOperator === "/") {
+    result = Number(calcInput1)/ Number(calcInput2);
+    }
+  }
+
+  if(!Number.isInteger(result)){
+    return result.toFixed(2);
+    } else {
+    return result;
+    }
+}
+
+inputCalculatorNumbers.map( button => {
   button.addEventListener('click', (e) => {
     let inputType = e.target.classList;
     let inputValue = e.target.innerText.toString();
-    if (inputString1.length < 9 && operatorChoice === '') {
-      inputString1 += inputValue;
-      display.innerText = inputString1;
-    } else {
-      if (inputString2.length < 9 && operatorChoice != ''){
-        inputString2 += inputValue;
-        display.innerText = inputString2;
-      }
-    }
-    console.log(`inputString1 is ${inputString1}`);
-    console.log(`inputString2 is ${inputString2}`);
-    console.log(`operatorChoice is ${operatorChoice}`);
-    });
+    collectInputs(inputValue);
+  });
 });
 
 calculatorOperators.map( button => {
   button.addEventListener('click', (e) => {
     let inputType = e.target.classList;
     let inputValue = e.target.innerText.toString();
-      if(inputValue == '%'){
-        inputString1 *= 0.01;
-        display.innerText = inputString1;
-      } else if (inputValue == '+ / -'){
-        inputString1 = -inputString1;
-        display.innerText = inputString1;
-        console.log(inputString1);
-      } else if (inputValue == '.'){
-          inputString1 += '.';
-      }
-      else {
-        display.innerText = '';
-        operatorChoice =  inputValue;
-      }
-    });
-  });
-
-
-calculatorClear.map( button => {
-  button.addEventListener('click', (e) => {
-    let inputType = e.target.classList;
-    let inputValue = e.target.innerText.toString();
-      inputString1 = '';
-      inputString2 = '';
-      operatorChoice = '';
-      display.innerText = '';
-      console.log(`inputString1 is ${inputString1}`);
-      console.log(`inputString2 is ${inputString2}`);
-      console.log(`operatorChoice is ${operatorChoice}`);
+    collectOperator(inputValue);
   });
 });
 
 calculatorEqual.map( button => {
   button.addEventListener('click', (e) => {
-    let inputType = e.target.classList;
-    let inputValue = e.target.innerText.toString();
-
-    console.log("equal button pressed");
-    if (inputString1 && inputString2 && operatorChoice){
-      if(operatorChoice === "+"){
-        result = add(parseInt(inputString1), parseInt(inputString2));
-      } else if (operatorChoice === "-"){
-        result = subtract(inputString1, inputString2);
-      } else if (operatorChoice === "*") {
-        result = multiply(inputString1, inputString2);
-      } else if (operatorChoice === "/") {
-      result = divide(inputString1, inputString2);
-      }
-    }
-
+    let result = calculateResults();
+    calcInput1 = result;
     display.innerText = result;
-    inputString1 = result;
-    inputString2 = '';
-    operatorChoice = '';
-
-    });
+    calcInput2 = '';
+    currentOperator = '';
   });
+});
+
+calculatorClear.map( button => {
+  button.addEventListener('click', () => {
+    clearCalculator();
+  });
+});
